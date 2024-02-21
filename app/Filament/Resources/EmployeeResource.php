@@ -103,18 +103,18 @@ class EmployeeResource extends Resource
                             ->displayFormat('d/m/Y')
                             ->required(),
                     ])->columns(2),
-                Forms\Components\TextInput::make('country_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('state_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('city_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('department_id')
-                    ->required()
-                    ->numeric(),
+                // Forms\Components\TextInput::make('country_id')
+                //     ->required()
+                //     ->numeric(),
+                // Forms\Components\TextInput::make('state_id')
+                //     ->required()
+                //     ->numeric(),
+                // Forms\Components\TextInput::make('city_id')
+                //     ->required()
+                //     ->numeric(),
+                // Forms\Components\TextInput::make('department_id')
+                //     ->required()
+                //     ->numeric(),
 
             ])->columns(3);
     }
@@ -123,31 +123,34 @@ class EmployeeResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('country_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('state_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('city_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('department_id')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('country.name')
+                    ->sortable()
+                    ->searchable(),
+                // Tables\Columns\TextColumn::make('state.name')
+                //     ->sortable()
+                //     ->searchable(),
+                // Tables\Columns\TextColumn::make('city.name')
+                //     ->sortable()
+                //     ->searchable(),
+                // Tables\Columns\TextColumn::make('department.name')
+                //     ->sortable()
+                //     ->searchable(),
                 Tables\Columns\TextColumn::make('first_name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('latat_name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('middle_name')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('addres')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('zip_code')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('date_of_birth')
                     ->date()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('date_hired')
                     ->date()
                     ->sortable(),
