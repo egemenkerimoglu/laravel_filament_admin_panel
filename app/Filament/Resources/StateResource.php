@@ -7,11 +7,14 @@ use App\Filament\Resources\StateResource\RelationManagers;
 use App\Models\State;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Infolists\Infolist;
 
 class StateResource extends Resource
 {
@@ -83,6 +86,21 @@ class StateResource extends Resource
             //
         ];
     }
+
+    // View Page Customize
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('Satate Info')
+                ->schema([
+                    TextEntry::make('country.name')->label('Coutry Name'),
+                    TextEntry::make('name')->label('State Name'),
+                ])
+                ->columns(2)
+            ]);
+    }
+    
 
     public static function getPages(): array
     {
