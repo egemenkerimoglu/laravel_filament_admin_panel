@@ -7,7 +7,9 @@ use App\Filament\Resources\EmployeeResource\RelationManagers;
 use App\Models\City;
 use App\Models\Employee;
 use App\Models\State;
+use Carbon\Carbon;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -16,6 +18,8 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -38,39 +42,39 @@ class EmployeeResource extends Resource
                 Forms\Components\Section::make('Relationships')
                     ->schema([
                         Forms\Components\Select::make('country_id')
-                            ->relationship(name:'country', titleAttribute: 'name')
+                            ->relationship(name: 'country', titleAttribute: 'name')
                             ->searchable()
                             ->preload()  // Performansı etkliyor
-                            ->live() 
+                            ->live()
                             ->afterStateUpdated(function (Set $set) {
                                 $set('state_id', null);
                                 $set('city_id', null);
                             })
                             ->required(),
                         Forms\Components\Select::make('state_id')
-                            ->options(fn(Get $get): Collection => State::query() 
+                            ->options(fn (Get $get): Collection => State::query()
                                 ->where('country_id', $get('country_id'))
-                                ->pluck('name','id'))                            
+                                ->pluck('name', 'id'))
                             ->searchable()
-                            ->preload()                            
+                            ->preload()
                             ->live()
                             ->afterStateUpdated(fn (Set $set) => $set('city_id', null))
                             ->required(),
                         Forms\Components\Select::make('city_id')
-                            ->options(fn(Get $get): Collection => City::query() 
+                            ->options(fn (Get $get): Collection => City::query()
                                 ->where('state_id', $get('state_id'))
-                                ->pluck('name','id'))
+                                ->pluck('name', 'id'))
                             ->searchable()
                             ->preload()
                             ->live()
                             ->required(),
                         Forms\Components\Select::make('department_id')
-                            ->relationship(name:'department', titleAttribute: 'name')
+                            ->relationship(name: 'department', titleAttribute: 'name')
                             ->searchable()
                             // ->preload()
                             ->required(),
                     ])->columns(2),
-                
+
                 Forms\Components\Section::make('User Name')
                     ->description('User name deteails')
                     ->schema([
@@ -168,6 +172,41 @@ class EmployeeResource extends Resource
             ])
             ->filters([
                 //
+                SelectFilter::make('Department')
+                    ->relationship('department', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->label('Filter by Department')
+                    ->indicator('Depatment'),
+                SelectFilter::make('Country')
+                    ->relationship('country', 'name'),
+                Filter::make('created_at')
+                    ->form([
+                        DatePicker::make('created_from'),
+                        DatePicker::make('created_until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['created_from'] ?? null) {
+                            $indicators['created_from']  = 'Created from' . Carbon::parse($data['created_from']);
+                        }
+                        if ($data['created_until'] ?? null) {
+                            $indicators['created_until']  = 'Created until' . Carbon::parse($data['created_until']);
+                        }
+                 
+                        return $indicators;
+                    })
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -193,22 +232,22 @@ class EmployeeResource extends Resource
         return $infolist
             ->schema([
                 Section::make('Relationships')
-                ->schema([
-                    TextEntry::make('country.name'),
-                    TextEntry::make('state.name'),
-                    TextEntry::make('department.name'),
-                ])->columns(3),
+                    ->schema([
+                        TextEntry::make('country.name'),
+                        TextEntry::make('state.name'),
+                        TextEntry::make('department.name'),
+                    ])->columns(3),
                 Section::make('Name')
-                ->schema([
-                    TextEntry::make('first_name'),
-                    TextEntry::make('middle_name'),
-                    TextEntry::make('latat_name'),
-                ])->columns(3),
+                    ->schema([
+                        TextEntry::make('first_name'),
+                        TextEntry::make('middle_name'),
+                        TextEntry::make('latat_name'),
+                    ])->columns(3),
                 Section::make('Address')
-                ->schema([
-                    TextEntry::make('addres'),
-                    TextEntry::make('zip_code'),
-                ])->columns(2),
+                    ->schema([
+                        TextEntry::make('addres'),
+                        TextEntry::make('zip_code'),
+                    ])->columns(2),
             ]);
     }
 
